@@ -20,12 +20,12 @@ Para lograrlo, se construyeron modelos de **Regresión Lineal** capaces de estim
 ## 🛠️ Herramientas y Habilidades Utilizadas
 * **Lenguaje:** Python
 * **Librerías:** Pandas, NumPy y Scikit-Learn
-* **Entorno:** Jupyter Notebook
+* **Entorno:** Jupyter Notebook (`lambda_oil_well_investment_analysis.ipynb`)
 * **Técnicas:** Regresión Lineal, Evaluación de errores (RMSE), Simulación Monte Carlo / Bootstrapping, Análisis de riesgo financiero e Intervalos de confianza.
 
 ## 📊 Fuente de Datos y Variables
-El proyecto utiliza información geológica de tres regiones distintas:
-* **Archivos utilizados:** `geo_data_0.csv`, `geo_data_1.csv`, `geo_data_2.csv`
+El proyecto utiliza información geológica de tres regiones distintas (100,000 registros por archivo):
+* **Archivos utilizados:** `geo_data_0.csv` (Región 1), `geo_data_1.csv` (Región 2) y `geo_data_2.csv` (Región 3).
 * **Variables disponibles:**
   * `id`: Identificador único del pozo (eliminado antes del modelado).
   * `f0`, `f1`, `f2`: Características geológicas de los puntos de exploración.
@@ -33,36 +33,36 @@ El proyecto utiliza información geológica de tres regiones distintas:
 
 ## ⚙️ Metodología
 1. **Exploración y limpieza:** Verificación de tipos de datos, ausencia de valores nulos y eliminación de la columna `id`.
-2. **Modelado predictivo:** División de datos en **75% Entrenamiento y 25% Validación** para entrenar un modelo independiente de Regresión Lineal por región.
-3. **Evaluación financiera inicial:** Cálculo de ganancias potenciales seleccionando los 200 mejores pozos (considerando una inversión total de **$100M USD**, ingreso de **$4,500 USD** por unidad de producto y un punto de equilibrio de **111.1 mil barriles** por pozo).
-4. **Análisis de riesgo (Bootstrapping):** Ejecución de **1,000 simulaciones** seleccionando muestras aleatorias de 500 pozos para elegir los 200 más rentables, construyendo la distribución empírica de beneficios y evaluando el riesgo real de pérdida.
+2. **Modelado predictivo:** División de datos en **75% Entrenamiento y 25% Validación** (`random_state=12345`) para entrenar un modelo independiente de Regresión Lineal por región.
+3. **Condiciones financieras:** Inversión total de **$100,000,000 USD** para desarrollar **200 pozos** ($500,000 USD por pozo), con un ingreso de **$4,500 USD** por unidad de producto, estableciendo un punto de equilibrio mínimo de **111.11 mil barriles** por pozo.
+4. **Análisis de riesgo (Bootstrapping):** Ejecución de **1,000 simulaciones** seleccionando muestras aleatorias de 500 pozos con reemplazo para elegir los 200 más rentables, construyendo la distribución empírica de beneficios y evaluando el riesgo real de pérdida.
 
-## 💡 Evaluación de Modelos y Ganancias Iniciales
-| Región | Reservas Promedio Estimadas | Error Predictivo (RMSE) | Ganancia Potencial (Top 200) |
-| :--- | :---: | :---: | :---: |
-| **Región 0** | 92.59 | 37.58 | **$33.21M USD** |
-| **Región 1** | 68.73 | **0.89** | $24.15M USD |
-| **Región 2** | 94.97 | 40.03 | $27.10M USD |
+## 💡 Evaluación de Modelos Predictivos
+| Región (Dataset) | Volumen Medio Predicho | Error Predictivo (RMSE) |
+| :--- | :---: | :---: |
+| **Región 1** (`geo_data_0.csv`) | 92.59 | 37.58 |
+| **Región 2** (`geo_data_1.csv`) | 68.73 | **0.89** |
+| **Región 3** (`geo_data_2.csv`) | 94.97 | 40.03 |
 
-*Aunque a primera vista la **Región 0** parecía ofrecer la mayor ganancia potencial, su alto error de predicción introducía una fuerte incertidumbre financiera.*
+*Aunque la **Región 2** presenta un promedio general de reservas más bajo, la excepcional precisión de su modelo ($\text{RMSE} = 0.89$) reduce drásticamente la incertidumbre al identificar los pozos más productivos.*
 
 ## 🧪 Resultados Finales (Simulación Bootstrapping)
-| Región | Ganancia Promedio | Intervalo de Confianza (95%) | Riesgo de Pérdidas | Estado frente a Regla de Negocio ($< 2.5\%$) |
+| Región (Dataset) | Ganancia Promedio | Intervalo de Confianza (95%) | Riesgo de Pérdidas | Estado frente a Regla de Negocio ($< 2.5\%$) |
 | :--- | :---: | :---: | :---: | :---: |
-| **Región 0** | $3.96M USD | `[-$1.11M ; $9.09M]` | 6.9% | ❌ Rechazada |
-| **Región 1** | **$4.56M USD** | **`[$0.34M ; $8.52M]`** | **1.5%** | ✅ **Seleccionada** |
-| **Región 2** | $4.04M USD | `[-$1.63M ; $9.50M]` | 7.6% | ❌ Rechazada |
+| **Región 1** (`geo_data_0.csv`) | $6,007,352.44 USD | `[$129,483.31 ; $12,311,636.06]` | 2.0% | ⚠️ Cumple, menor retorno |
+| **Región 2** (`geo_data_1.csv`) | **$6,652,410.58 USD** | **`[$1,579,884.81 ; $11,976,415.87]`** | **0.3%** | ✅ **Seleccionada** |
+| **Región 3** (`geo_data_2.csv`) | $6,155,597.23 USD | `[-$122,184.95 ; $12,306,444.74]` | 3.0% | ❌ Rechazada ($> 2.5\%$) |
 
 ## 📈 Principales Hallazgos
-* **Precisión predictiva:** La **Región 1** presentó el modelo más exacto con un $\text{RMSE} = 0.89$, reduciendo drásticamente la incertidumbre sobre las reservas reales.
-* **Evaluación del riesgo:** Las regiones 0 y 2 presentaron probabilidades de pérdida del **6.9%** y **7.6%** respectivamente, superando el umbral máximo tolerable por la compañía ($2.5\%$).
-* **Rentabilidad ajustada al riesgo:** La **Región 1** no solo fue la única en cumplir con el criterio de seguridad financiera (**1.5%** de riesgo), sino que también alcanzó la **mayor ganancia promedio esperada ($4.56M USD)** tras incorporar la variabilidad del muestreo.
+* **Precisión determinante:** La **Región 2 (`geo_data_1.csv`)** obtuvo el error más bajo ($\text{RMSE} = 0.89$), permitiendo seleccionar con alta certeza los 200 pozos más rentables de cada muestra.
+* **Descarte por riesgo:** La **Región 3** quedó descartada al registrar un riesgo de pérdida del **3.0%**, superando el límite máximo permitido por la compañía ($2.5\%$).
+* **Máxima rentabilidad y seguridad:** La **Región 2** generó la mayor ganancia promedio (**$6,652,410.58 USD**) junto con el riesgo de pérdida más bajo de todo el estudio (**0.3%**), respaldado por un intervalo de confianza al 95% holgadamente positivo.
 
 ## 📂 Archivos Principales
-* `lambda_oil_well_investment_analysis.ipynb` (o `Λ_Lambda_oil_well_investment_analysis_ipynb.ipynb`)
+* `lambda_oil_well_investment_analysis.ipynb`
 * `geo_data_0.csv`
 * `geo_data_1.csv`
 * `geo_data_2.csv`
 
 ## 🏁 Conclusión
-El análisis cuantitativo permitió determinar la ubicación óptima para invertir **$100 millones de dólares** en el desarrollo de nuevos pozos petroleros. Aunque la Región 0 aparentaba liderar en un escenario determinista, el análisis de incertidumbre mediante **Bootstrapping** demostró un riesgo financiero inaceptable. Por el contrario, la **Región 1** ofrece el equilibrio ideal entre precisión predictiva, rentabilidad promedio (**$4.56M USD**) y seguridad financiera (**1.5% de riesgo de pérdidas**), siendo la recomendación definitiva para la expansión operativa de **OilyGiant**.
+A partir de la evaluación de los modelos de regresión lineal y las simulaciones con **Bootstrapping**, se recomienda de manera categórica desarrollar los nuevos pozos petrolíferos en la **Región 2 (`geo_data_1.csv`)**. Esta alternativa ofrece el equilibrio óptimo para invertir los **$100 millones de dólares**, alcanzando el mayor beneficio promedio esperado (**$6.65M USD**) y un riesgo de pérdida mínimo de apenas **0.3%**, garantizando una inversión segura y alineada con los criterios corporativos de **OilyGiant**.
